@@ -87,7 +87,7 @@ function bal(p){return sum(p,"inv")-sum(p,"pay")-sum(p,"ret")}
 function set(p,id){return p.tx.reduce(function(a,t){return a+(t.inv===id&&t.k!=="inv"?t.a:0)},0)}
 function tot(ty){return S.ps.filter(function(p){return p.type===ty}).reduce(function(a,p){return a+bal(p)},0)}
 function sorted(p){return p.tx.slice().sort(function(a,b){return a.d<b.d?-1:a.d>b.d?1:a.id<b.id?-1:1})}
-function W(p){var s=p.type==="sup";return{inv:s?"فاتورة":"مبلغ ليّ",pay:s?"سداد":"تحصيل",ret:"مرتجع",rem:s?"المتبقي عليّ":"المتبقي ليّ"}}
+function W(p){var s=p.type==="sup";return{inv:s?"فاتورة":"مبلغ مستحق",pay:s?"سداد":"تحصيل",ret:"مرتجع",rem:s?"المتبقي عليّ":"المتبقي ليّ"}}
 function desc(p,t){var w=W(p),x=w[t.k];if(t.k==="inv"&&t.no)x+=" #"+t.no;if(t.k!=="inv"&&t.inv){var i=T(p,t.inv);if(i)x+=" عن فاتورة"+(i.no?" #"+i.no:"")}return x+(t.n?" - "+t.n:"")}
 function stmt(p){var b=0,t="كشف حساب: "+p.name+"\n------------\n";sorted(p).forEach(function(x){b+=x.k==="inv"?x.a:-x.a;t+=x.d+" | "+desc(p,x)+" | "+(x.k==="inv"?"+":"-")+m(x.a)+" | الرصيد "+m(b)+"\n"});
  return t+"------------\n"+(p.type==="sup"?"فواتير: ":"إجمالي المبالغ: ")+m(sum(p,"inv"))+"\n"+W(p).pay+": "+m(sum(p,"pay"))+"\n"+(p.type==="sup"?"مرتجعات: "+m(sum(p,"ret"))+"\n":"")+W(p).rem+": "+m(bal(p))+" ج.م"}
@@ -124,7 +124,7 @@ function repH(){var q=(S.rq||"").trim().toLowerCase(),ps=S.ps.filter(function(p)
  if(!ps.length)return'<div class="empty">'+(q?"لا توجد نتائج":"لا توجد حسابات")+'</div>';
  var sp=ps.filter(function(p){return p.type==="sup"}),cu=ps.filter(function(p){return p.type==="cus"}),h='';
  if(!q)h+='<h3 style="margin:6px 0 8px">الفواتير المفتوحة والمستحقات</h3>'+dueT();
- [[sp,"الموردين (عليّ)"],[cu,"العملاء (ليّ عندهم)"]].forEach(function(g){if(!g[0].length)return;h+='<h3 style="margin:16px 0 8px">'+g[1]+'</h3>';
+ [[sp,"الموردين "],[cu,"العملاء "]].forEach(function(g){if(!g[0].length)return;h+='<h3 style="margin:16px 0 8px">'+g[1]+'</h3>';
   g[0].forEach(function(p){var s2=p.type==="sup",b=bal(p);
    h+='<div class="pp" data-pid="'+p.id+'"><h4 style="margin:12px 0 6px">'+esc(p.name)+(p.phone?' · <span dir="ltr">'+esc(p.phone)+'</span>':'')+'</h4><div class="acts" style="margin:0 0 8px"><button class="btn g" data-a="printp" data-id="'+p.id+'">🖨️ طباعة / PDF لهذا الشخص</button></div>'+(s2?sched(p):stmtT(p))+'<div class="box" style="margin-bottom:12px;font-size:14px">'+(s2?'فواتير '+m(sum(p,"inv"))+' · مسدد '+m(sum(p,"pay"))+' · مرتجع '+m(sum(p,"ret"))+' · <b>المتبقي عليّ '+m(b)+'</b>':'إجمالي المبالغ '+m(sum(p,"inv"))+' · المحصّل '+m(sum(p,"pay"))+' · <b>المتبقي ليّ '+m(b)+'</b>')+'</div></div>'})});
  var A=sp.reduce(function(x,p){return x+bal(p)},0),B=cu.reduce(function(x,p){return x+bal(p)},0),N=B-A;
